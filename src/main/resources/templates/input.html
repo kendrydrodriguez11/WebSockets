@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Bonito</title>
+    <link rel="stylesheet" href="input.css">
+</head>
+<body>
+<div class="container">
+    <h2>Formulario</h2>
+
+    <div id="messageArea"></div>
+
+    <div class="input-group">
+        <label for="username">Nombre</label>
+        <input type="text" id="username" name="username" placeholder="Escribe tu nombre">
+    </div>
+    <div class="input-group">
+        <label for="messageInput">Mensaje</label>
+        <input type="text" id="messageInput" name="messageInput" placeholder="Escribe tu mensaje">
+    </div>
+    <button onclick="setMessage()" class="btn">Enviar</button>
+</div>
+
+<script>
+    socket = new WebSocket("ws://localhost:8080/chat");
+
+    socket.onopen = function() {
+        console.log("Conectado al WebSocket");
+    };
+
+    socket.onclose = function(event) {
+        console.log(" WebSocket cerrado. Código:", event.code, "Razón:", event.reason);
+        setTimeout(connectWebSocket, 3000);
+    };
+
+    socket.onmessage = function(event) {
+        let messageArea = document.getElementById("messageArea");
+        messageArea.innerHTML += '<p>' + event.data + '</p>';
+    };
+
+    function setMessage() {
+    let username = document.getElementById("username").value;
+    let messageInput = document.getElementById("messageInput").value;
+    if (username && messageInput) {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(username + ': ' + messageInput);
+        } else {
+            alert("La conexión se ha cerrado. Recarga la página.");
+        }
+    } else {
+        alert("Por favor, llena ambos campos.");
+    }
+}
+
+</script>
+</body>
+</html>
